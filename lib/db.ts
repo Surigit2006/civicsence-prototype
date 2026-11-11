@@ -13,14 +13,33 @@ function getDatabase(): Database.Database {
     return globalThis.__civicsense_db;
   }
 
-  const dataDir = path.join(process.cwd(), 'data');
+  const isVercel = process.env.VERCEL === '1' || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+  const dataDir = isVercel ? '/tmp' : path.join(process.cwd(), 'data');
   if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
+    try {
+      fs.mkdirSync(dataDir, { recursive: true });
+    } catch (err) {
+      console.error('Error creating data directory:', err);
+    }
   }
 
   const dbPath = path.join(dataDir, 'civicsense.db');
+
+  // If running on Vercel, copy bundled seed DB to writable /tmp on first boot
+  if (isVercel && !fs.existsSync(dbPath)) {
+    const bundledDbPath = path.join(process.cwd(), 'data', 'civicsense.db');
+    if (fs.existsSync(bundledDbPath)) {
+      try {
+        fs.copyFileSync(bundledDbPath, dbPath);
+      } catch (err) {
+        console.error('Failed to copy bundled database to /tmp:', err);
+      }
+    }
+  }
+
   const db = new Database(dbPath);
-  db.pragma('journal_mode = WAL');
+  // In serverless /tmp, WAL mode can cause shared memory errors; use DELETE journal mode on Vercel
+  db.pragma(isVercel ? 'journal_mode = DELETE' : 'journal_mode = WAL');
 
   // Schema creation
   db.exec(`
@@ -71,13 +90,10 @@ function getDatabase(): Database.Database {
     }
   }
 
-  if (process.env.NODE_ENV !== 'production') {
-    globalThis.__civicsense_db = db;
-  }
+  globalThis.__civicsense_db = db;
 
   return db;
 }
 
 export const db = getDatabase();
 export default db;
-

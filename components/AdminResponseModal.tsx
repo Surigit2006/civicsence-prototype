@@ -65,7 +65,12 @@ export default function AdminResponseModal({ issue, onClose, onSuccess }: AdminR
         }),
       });
 
-      const data = await res.json();
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error(`Server returned status ${res.status}. Please check Vercel function logs.`);
+      }
       if (!res.ok) {
         throw new Error(data.error || 'Failed to submit municipality response');
       }

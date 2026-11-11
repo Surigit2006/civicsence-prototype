@@ -52,7 +52,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password: pass }),
       });
-      const data = await res.json();
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        return { success: false, error: `Server error (${res.status}). Please check Vercel function logs.` };
+      }
       if (!res.ok) {
         return { success: false, error: data.error || 'Login failed' };
       }
@@ -70,7 +75,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password: pass }),
       });
-      const data = await res.json();
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        return { success: false, error: `Server error (${res.status}). Please check Vercel function logs.` };
+      }
       if (!res.ok) {
         return { success: false, error: data.error || 'Registration failed' };
       }
