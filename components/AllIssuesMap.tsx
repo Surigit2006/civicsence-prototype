@@ -21,6 +21,11 @@ export default function AllIssuesMap({ issues, onSelectIssue }: AllIssuesMapProp
       if (mapInstanceRef.current) return;
 
       const L = (await import('leaflet')).default;
+      if (!isMounted || !mapContainerRef.current || mapInstanceRef.current) return;
+
+      if ((mapContainerRef.current as any)._leaflet_id) {
+        (mapContainerRef.current as any)._leaflet_id = null;
+      }
 
       // Determine initial center
       const defaultCenter: [number, number] = issues.length > 0

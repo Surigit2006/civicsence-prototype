@@ -117,3 +117,4 @@ if (existingCount.count === 0) {
 
 db.close();
 console.log('Database initialization complete.');
+

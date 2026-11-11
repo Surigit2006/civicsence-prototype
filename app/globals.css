@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "leaflet/dist/leaflet.css";
 
 :root {
   --background: #f8fafc;
@@ -12,7 +11,7 @@ body {
   min-height: 100vh;
 }
 
-/* Ensure Leaflet controls and markers render above standard content */
+/* Ensure Leaflet controls and markers render properly */
 .leaflet-container {
   font-family: inherit;
   z-index: 10;

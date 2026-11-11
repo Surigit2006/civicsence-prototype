@@ -30,6 +30,11 @@ export default function MapPicker({ latitude, longitude, onChange }: MapPickerPr
       if (mapInstanceRef.current) return;
 
       const L = (await import('leaflet')).default;
+      if (!isMounted || !mapContainerRef.current || mapInstanceRef.current) return;
+
+      if ((mapContainerRef.current as any)._leaflet_id) {
+        (mapContainerRef.current as any)._leaflet_id = null;
+      }
 
       // Create custom SVG marker icon
       const createCustomIcon = () => {
